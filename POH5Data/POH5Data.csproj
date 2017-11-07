@@ -43,6 +43,9 @@
     <Compile Include="DataAccess.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ToimittajaRepository.cs" />
+    <Compile Include="TuoteRepository.cs" />
+    <Compile Include="TuoteRyhmaRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\POH5Luokat\POH5Luokat.csproj">

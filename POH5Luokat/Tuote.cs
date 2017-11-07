@@ -2,10 +2,9 @@
 
 namespace POH5Luokat
 {
-    class Tuote : IId, INimi
+    public class Tuote : IId, INimi
     {
         public int Id { get; private set; }
-
         public string Nimi { get; set; }
 
         public int? ToimittajaId { get; set; }

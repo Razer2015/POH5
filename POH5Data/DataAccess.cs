@@ -1,6 +1,6 @@
 ﻿namespace POH5Data
 {
-    abstract class DataAccess
+    public abstract class DataAccess
     {
         public string ConnectionString { get; set; }
 

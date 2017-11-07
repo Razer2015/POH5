@@ -2,13 +2,13 @@
 
 namespace POH5Luokat
 {
-    class TuoteRyhma : IId, INimi
+    public class TuoteRyhma : IId, INimi
     {
         public int Id { get; private set; }
-
         public string Nimi { get; set; }
 
         public string Kuvaus { get; set; }
+        public byte[] Kuva { get; set; }
 
         public virtual List<Tuote> Tuotteet { get; set; }
 

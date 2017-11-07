@@ -1,6 +1,6 @@
 ﻿namespace POH5Luokat
 {
-    interface IId
+    public interface IId
     {
         int Id { get; }
     }

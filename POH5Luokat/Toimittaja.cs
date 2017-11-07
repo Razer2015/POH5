@@ -2,11 +2,11 @@
 
 namespace POH5Luokat
 {
-    class Toimittaja : IId, INimi
+    public class Toimittaja : IId, INimi
     {
         public int Id { get; private set; }
-
         public string Nimi { get; set; }
+
         public string YhteysHenkilo { get; set; }
         public string YhteysTitteli { get; set; }
         public string Katuosoite { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace POH5Luokat
 {
-    interface INimi
+    public interface INimi
     {
         string Nimi { get; }
     }
