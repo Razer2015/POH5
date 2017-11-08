@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POH5Luokat", "POH5Luokat\PO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POH5Data", "POH5Data\POH5Data.csproj", "{309AFFDE-F825-4DCF-A66E-50291B4E0E36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POH5Testeri", "POH5Testeri\POH5Testeri.csproj", "{AFA7E57B-4568-435A-8281-3E59E0AF8B0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{309AFFDE-F825-4DCF-A66E-50291B4E0E36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{309AFFDE-F825-4DCF-A66E-50291B4E0E36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{309AFFDE-F825-4DCF-A66E-50291B4E0E36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFA7E57B-4568-435A-8281-3E59E0AF8B0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFA7E57B-4568-435A-8281-3E59E0AF8B0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFA7E57B-4568-435A-8281-3E59E0AF8B0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFA7E57B-4568-435A-8281-3E59E0AF8B0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

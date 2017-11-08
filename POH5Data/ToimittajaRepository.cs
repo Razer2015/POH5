@@ -6,12 +6,12 @@ using System.Data.SqlClient;
 
 namespace POH5Data
 {
-    class ToimittajaRepository : DataAccess, IRepository<Toimittaja>
+    public  class ToimittajaRepository : DataAccess, IRepository<Toimittaja>
     {
         public ToimittajaRepository(string conString) : base(conString) {}
 
         private Toimittaja TeeRivistaToimittaja(IDataReader reader) {
-            var paluu = new Toimittaja(int.Parse(reader["SupplierID"].ToString()), reader["CompanyName"].ToString());
+            var paluu = new ToimittajaProxy(int.Parse(reader["SupplierID"].ToString()), reader["CompanyName"].ToString());
 
             paluu.YhteysHenkilo = (!(reader["ContactName"] is DBNull) ? reader["ContactName"].ToString() : null);
             paluu.YhteysTitteli = (!(reader["ContactTitle"] is DBNull) ? reader["ContactTitle"].ToString() : null);
@@ -24,6 +24,8 @@ namespace POH5Data
             //paluu. = (!(reader["Fax"] is DBNull) ? reader["Fax"].ToString() : null);
             //paluu. = (!(reader["HomePage"] is DBNull) ? reader["HomePage"].ToString() : null);
 
+            //Tuote‐olioiden myöhempää populointia varten
+            ((ToimittajaProxy)paluu).TuoteRepository = new TuoteRepository(ConnectionString);
             return (paluu);
         }
 

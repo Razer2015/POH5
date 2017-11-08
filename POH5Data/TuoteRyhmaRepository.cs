@@ -6,16 +6,18 @@ using System.Data.SqlClient;
 
 namespace POH5Data
 {
-    class TuoteRyhmaRepository : DataAccess, IRepository<TuoteRyhma>
+    public class TuoteRyhmaRepository : DataAccess, IRepository<TuoteRyhma>
     {
         public TuoteRyhmaRepository(string conString) : base(conString) {}
 
         private TuoteRyhma TeeRivistaTuoteRyhma(IDataReader reader) {
-            var paluu = new TuoteRyhma(int.Parse(reader["CategoryID"].ToString()), reader["CategoryName"].ToString());
+            var paluu = new TuoteRyhmaProxy(int.Parse(reader["CategoryID"].ToString()), reader["CategoryName"].ToString());
 
             paluu.Kuvaus = (!(reader["Description"] is DBNull) ? reader["Description"].ToString() : null);
             paluu.Kuva = (!(reader["Picture"] is DBNull) ? (byte[])reader["Picture"] : null);
 
+            //Tuote‐olioiden myöhempää populointia varten
+            ((TuoteRyhmaProxy)paluu).TuoteRepository = new TuoteRepository(ConnectionString);
             return (paluu);
         }
 

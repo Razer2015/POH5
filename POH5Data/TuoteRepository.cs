@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace POH5Data
 {
-    class TuoteRepository : DataAccess, IRepository<Tuote>
+    public class TuoteRepository : DataAccess, IRepository<Tuote>
     {
         public TuoteRepository(string conString) : base(conString) {}
 
@@ -16,18 +16,21 @@ namespace POH5Data
         /// <param name="reader"></param>
         /// <returns></returns>
         private Tuote TeeRivistaTuote(IDataReader reader) {
-            var paluu = new Tuote(int.Parse(reader["ProductID"].ToString()), reader["ProductName"].ToString());
+            var paluu = new TuoteProxy(int.Parse(reader["ProductID"].ToString()), reader["ProductName"].ToString()) {
+                ToimittajaId = (!(reader["SupplierID"] is DBNull) ? int.Parse(reader["SupplierID"].ToString()) : (int?)null),
+                RyhmaId = (!(reader["CategoryID"] is DBNull) ? int.Parse(reader["CategoryID"].ToString()) : (int?)null),
+                YksikkoKuvaus = (!(reader["QuantityPerUnit"] is DBNull) ? reader["QuantityPerUnit"].ToString() : null),
+                YksikkoHinta = (!(reader["UnitPrice"] is DBNull) ? double.Parse(reader["UnitPrice"].ToString().Replace('.', ',')) : (double?)null),
+                VarastoSaldo = (!(reader["UnitsInStock"] is DBNull) ? int.Parse(reader["UnitsInStock"].ToString()) : (int?)null),
+                TilausSaldo = (!(reader["UnitsOnOrder"] is DBNull) ? int.Parse(reader["UnitsOnOrder"].ToString()) : (int?)null),
+                HalytysRaja = (!(reader["ReorderLevel"] is DBNull) ? int.Parse(reader["ReorderLevel"].ToString()) : (int?)null),
 
-            paluu.ToimittajaId = (!(reader["SupplierID"] is DBNull) ? int.Parse(reader["SupplierID"].ToString()) : (int?)null);
-            paluu.RyhmaId = (!(reader["CategoryID"] is DBNull) ? int.Parse(reader["CategoryID"].ToString()) : (int?)null);
-            paluu.YksikkoKuvaus = (!(reader["QuantityPerUnit"] is DBNull) ? reader["QuantityPerUnit"].ToString() : null);
-            paluu.YksikkoHinta = (!(reader["UnitPrice"] is DBNull) ? double.Parse(reader["UnitPrice"].ToString().Replace('.', ',')) : (double?)null);
-            paluu.VarastoSaldo = (!(reader["UnitsInStock"] is DBNull) ? int.Parse(reader["UnitsInStock"].ToString()) : (int?)null);
-            paluu.TilausSaldo = (!(reader["UnitsOnOrder"] is DBNull) ? int.Parse(reader["UnitsOnOrder"].ToString()) : (int?)null);
-            paluu.HalytysRaja = (!(reader["ReorderLevel"] is DBNull) ? int.Parse(reader["ReorderLevel"].ToString()) : (int?)null);
+                EiKaytossa = bool.Parse(reader["Discontinued"].ToString())
+            };
 
-            paluu.EiKaytossa = bool.Parse(reader["Discontinued"].ToString());
-
+            //Toimittaja ja TuoteRyhma‐olioiden myöhempää populointia varten
+            ((TuoteProxy)paluu).ToimittajaRepository = new ToimittajaRepository(ConnectionString);
+            ((TuoteProxy)paluu).TuoteRyhmaRepository = new TuoteRyhmaRepository(ConnectionString);
             return (paluu);
         }
 
@@ -47,7 +50,7 @@ namespace POH5Data
         public Tuote Hae(int id) {
             var paluu = new Tuote();
 
-            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, ReorderLevel, Discontinued FROM dbo.Products WHERE ProductID = @ProductID";
+            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM dbo.Products WHERE ProductID = @ProductID";
 
             try {
                 // Using block kutsuu Dispose metodia, joka puolestaan kutsuu myös Close metodia (Myös virheen sattuessa)
@@ -69,7 +72,7 @@ namespace POH5Data
         public List<Tuote> HaeKaikki() {
             var paluu = new List<Tuote>();
 
-            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, ReorderLevel, Discontinued FROM dbo.Products ORDER BY ProductID";
+            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM dbo.Products ORDER BY ProductID";
 
             try {
                 // Using block kutsuu Dispose metodia, joka puolestaan kutsuu myös Close metodia (Myös virheen sattuessa)
@@ -90,7 +93,7 @@ namespace POH5Data
         public List<Tuote> HaeRyhmanKaikki(int id) {
             var paluu = new List<Tuote>();
 
-            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, ReorderLevel, Discontinued FROM dbo.Products WHERE CategoryID = @CategoryID ORDER BY ProductID";
+            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM dbo.Products WHERE CategoryID = @CategoryID ORDER BY ProductID";
 
             try {
                 // Using block kutsuu Dispose metodia, joka puolestaan kutsuu myös Close metodia (Myös virheen sattuessa)
@@ -112,7 +115,7 @@ namespace POH5Data
         public List<Tuote> HaeToimittajanKaikki(int id) {
             var paluu = new List<Tuote>();
 
-            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, ReorderLevel, Discontinued FROM dbo.Products WHERE SupplierID = @SupplierID ORDER BY ProductID";
+            string sql = "SELECT ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM dbo.Products WHERE SupplierID = @SupplierID ORDER BY ProductID";
 
             try {
                 // Using block kutsuu Dispose metodia, joka puolestaan kutsuu myös Close metodia (Myös virheen sattuessa)
@@ -134,7 +137,7 @@ namespace POH5Data
         public bool Lisaa(Tuote item) {
             var paluu = false;
 
-            string sql = "INSERT INTO dbo.Products(ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, ReorderLevel, Discontinued) VALUES(@ProductName, @SupplierID, @CategoryID, @QuantityPerUnit, @UnitPrice, @UnitsInStock, @ReorderLevel, @Discontinued)";
+            string sql = "INSERT INTO dbo.Products(ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued) VALUES(@ProductName, @SupplierID, @CategoryID, @QuantityPerUnit, @UnitPrice, @UnitsInStock, @UnitsOnOrder, @ReorderLevel, @Discontinued)";
 
             try {
                 // Using block kutsuu Dispose metodia, joka puolestaan kutsuu myös Close metodia (Myös virheen sattuessa)
@@ -147,6 +150,7 @@ namespace POH5Data
                         cmd.Parameters.Add(new SqlParameter("@QuantityPerUnit", item.YksikkoKuvaus));
                         cmd.Parameters.Add(new SqlParameter("@UnitPrice", item.YksikkoHinta.HasValue ? item.YksikkoHinta.ToString().Replace(',', '.') : (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@UnitsInStock", item.VarastoSaldo ?? (object)DBNull.Value));
+                        cmd.Parameters.Add(new SqlParameter("@UnitsOnOrder", item.TilausSaldo ?? (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@ReorderLevel", item.HalytysRaja ?? (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@Discontinued", item.EiKaytossa));
                         paluu = (cmd.ExecuteNonQuery() == 1 ? true : false);
@@ -163,7 +167,7 @@ namespace POH5Data
         public bool Muuta(Tuote item) {
             var paluu = false;
 
-            string sql = "UPDATE dbo.Products SET ProductName = @ProductName, SupplierID = @SupplierID, CategoryID = @CategoryID, QuantityPerUnit = @QuantityPerUnit, UnitPrice = @UnitPrice, UnitsInStock = @UnitsInStock, ReorderLevel = @ReorderLevel, Discontinued = @Discontinued WHERE ProductID = @ProductID";
+            string sql = "UPDATE dbo.Products SET ProductName = @ProductName, SupplierID = @SupplierID, CategoryID = @CategoryID, QuantityPerUnit = @QuantityPerUnit, UnitPrice = @UnitPrice, UnitsInStock = @UnitsInStock, UnitsOnOrder = @UnitsOnOrder, ReorderLevel = @ReorderLevel, Discontinued = @Discontinued WHERE ProductID = @ProductID";
 
             try {
                 // Using block kutsuu Dispose metodia, joka puolestaan kutsuu myös Close metodia (Myös virheen sattuessa)
@@ -171,12 +175,14 @@ namespace POH5Data
                     sqlCon.Open();
                     using (var cmd = new SqlCommand(sql, sqlCon)) {
                         cmd.Parameters.Add(new SqlParameter("@ProductID", item.Id));
+
                         cmd.Parameters.Add(new SqlParameter("@ProductName", item.Nimi));
                         cmd.Parameters.Add(new SqlParameter("@SupplierID", item.ToimittajaId ?? (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@CategoryID", item.RyhmaId ?? (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@QuantityPerUnit", item.YksikkoKuvaus));
                         cmd.Parameters.Add(new SqlParameter("@UnitPrice", item.YksikkoHinta.HasValue ? item.YksikkoHinta.ToString().Replace(',', '.') : (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@UnitsInStock", item.VarastoSaldo ?? (object)DBNull.Value));
+                        cmd.Parameters.Add(new SqlParameter("@UnitsOnOrder", item.TilausSaldo ?? (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@ReorderLevel", item.HalytysRaja ?? (object)DBNull.Value));
                         cmd.Parameters.Add(new SqlParameter("@Discontinued", item.EiKaytossa));
                         paluu = (cmd.ExecuteNonQuery() == 1 ? true : false);

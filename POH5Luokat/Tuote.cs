@@ -16,8 +16,8 @@ namespace POH5Luokat
         public int? HalytysRaja { get; set; }
         public bool EiKaytossa { get; set; }
 
-        public virtual List<Toimittaja> Toimittaja { get; set; }
-        public virtual List<TuoteRyhma> Ryhma { get; set; }
+        public virtual Toimittaja Toimittaja { get; set; }
+        public virtual TuoteRyhma Ryhma { get; set; }
 
         /// <summary>
         /// Constructor
