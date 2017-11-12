@@ -48,7 +48,9 @@ namespace POH5Data
                     sqlCon.Open();
                     using (var cmd = new SqlCommand(sql, sqlCon)) {
                         cmd.Parameters.Add(new SqlParameter("@SupplierID", id));
-                        paluu = TeeRivistaToimittaja(cmd.ExecuteReader(CommandBehavior.SingleRow));
+                        var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
+                        reader.Read();
+                        paluu = TeeRivistaToimittaja(reader);
                     }
                 }
             }

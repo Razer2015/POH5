@@ -40,7 +40,9 @@ namespace POH5Data
                     sqlCon.Open();
                     using (var cmd = new SqlCommand(sql, sqlCon)) {
                         cmd.Parameters.Add(new SqlParameter("@CategoryID", id));
-                        paluu = TeeRivistaTuoteRyhma(cmd.ExecuteReader(CommandBehavior.SingleRow));
+                        var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
+                        reader.Read();
+                        paluu = TeeRivistaTuoteRyhma(reader);
                     }
                 }
             }
@@ -84,7 +86,14 @@ namespace POH5Data
                     using (var cmd = new SqlCommand(sql, sqlCon)) {
                         cmd.Parameters.Add(new SqlParameter("@CategoryName", item.Nimi));
                         cmd.Parameters.Add(new SqlParameter("@Description", item.Kuvaus ?? (object)DBNull.Value));
-                        cmd.Parameters.Add(new SqlParameter("@Picture", item.Kuva ?? (object)DBNull.Value));
+                        if (item.Kuva == null) {
+                            SqlParameter imageParameter = new SqlParameter("@Picture", SqlDbType.Image);
+                            imageParameter.Value = DBNull.Value;
+                            cmd.Parameters.Add(imageParameter);
+                        }
+                        else {
+                            cmd.Parameters.AddWithValue("@Picture", item.Kuva);
+                        }
                         paluu = (cmd.ExecuteNonQuery() == 1 ? true : false);
                     }
                 }
@@ -110,7 +119,14 @@ namespace POH5Data
 
                         cmd.Parameters.Add(new SqlParameter("@CategoryName", item.Nimi));
                         cmd.Parameters.Add(new SqlParameter("@Description", item.Kuvaus ?? (object)DBNull.Value));
-                        cmd.Parameters.Add(new SqlParameter("@Picture", item.Kuva ?? (object)DBNull.Value));
+                        if (item.Kuva == null) {
+                            SqlParameter imageParameter = new SqlParameter("@Picture", SqlDbType.Image);
+                            imageParameter.Value = DBNull.Value;
+                            cmd.Parameters.Add(imageParameter);
+                        }
+                        else {
+                            cmd.Parameters.AddWithValue("@Picture", item.Kuva);
+                        }
                         paluu = (cmd.ExecuteNonQuery() == 1 ? true : false);
                     }
                 }
